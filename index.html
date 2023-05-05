@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Three Friends Calculator</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+	<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+	<h1>Three Friends Calculator</h1>
+	<div class="input-container">
+		<label for="yacineInput">Yacine:</label>
+		<input type="number" id="yacineInput">
+		<label for="aymenInput">Aymen:</label>
+		<input type="number" id="aymenInput">
+		<label for="saidInput">Said:</label>
+		<input type="number" id="saidInput">
+		<button id="calculatid" >Calculate</button>
+	</div>
+	<div id="y" class="result">
+		<p>Yacine's result: <span id="yacineResult"></span></p>
+		<p>Aymen's result: <span id="aymenResult"></span></p>
+		<p>Said's result: <span id="saidResult"></span></p>
+	</div>
+
+	<div class="result">
+		<div>
+		  <h2>What should we buy?</h2>
+		  <textarea id="shopping-list" rows="10" placeholder="Enter items here..."></textarea>
+		  <button id="addNeedsid" type="submit">ADD</button>
+		</div>
+	  </div>
+
+	<script type="module">
+		//INIT
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+    import {getDatabase, ref, get, set, child, update, remove}
+    from "https://www.gstatic.com/firebasejs/9.21.0/firebase-database.js"
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyD3IfBUoIxR6v4_1jcEBFVOLQ3aJfffAM4",
+      authDomain: "money133.firebaseapp.com",
+      projectId: "money133",
+      storageBucket: "money133.appspot.com",
+      messagingSenderId: "915915980314",
+      appId: "1:915915980314:web:e0940507b1e2aeea5a5ba3"
+    };
+    var insertBtn = document.querySelector("#calculatid");
+    insertBtn.addEventListener('click', calculate);
+
+	var insertBtn = document.querySelector("#addNeedsid");
+    insertBtn.addEventListener('click',InsertDataNeeds );
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    var db = getDatabase();
+
+    function FindData() {
+        const dbref = ref(db);
+
+        get(child(dbref, "Users/"))
+        .then((snapshot)=>{
+            if(snapshot.exists()){
+                document.getElementById("yacineInput").value=snapshot.val()["Yacine"].value;
+                document.getElementById("aymenInput").value=snapshot.val()["Aymen"].value;
+                document.getElementById("saidInput").value=snapshot.val()["Said"].value;
+
+            } else {
+                alert("No data found");
+            }
+        })
+        .catch((error)=>{
+            alert(error)
+        })
+
+		get(child(dbref, "Needs/"))
+        .then((snapshot)=>{
+            if(snapshot.exists()){
+				document.getElementById("shopping-list").value= snapshot.val().value;
+            } else {
+                alert("No data found");
+            }
+        })
+        .catch((error)=>{
+            alert(error)
+        })
+        
+    }
+    FindData();
+     function InsertData(name,valueMoney) {
+              set(ref(db, "Users/"+name ),{
+                  value: valueMoney
+              })
+              .then(()=>{
+                console.log("Data added successfully");
+              })
+              .catch((error)=>{
+                  console.log(error);
+              });
+          }
+
+		  function InsertDataNeeds() {
+              set(ref(db, "Needs/" ),{
+                  value: document.getElementById("shopping-list").value
+              })
+              .then(()=>{
+                alert("Data added successfully");
+              })
+              .catch((error)=>{
+                  alert(error);
+              });
+          }
+  
+        function calculate() {
+      // Get input values from each person
+      var yacineValue = parseFloat(document.getElementById("yacineInput").value);
+      var aymenValue = parseFloat(document.getElementById("aymenInput").value);
+      var saidValue = parseFloat(document.getElementById("saidInput").value);
+    
+      // Calculate the sum of the three values
+      var totalValue = yacineValue + aymenValue + saidValue;
+    
+      // Calculate the result for each person
+      var yacineResult = (totalValue / 3) - yacineValue;
+      var aymenResult = (totalValue / 3) - aymenValue;
+      var saidResult = (totalValue / 3) - saidValue;
+    
+      // Display the results and messages
+      document.getElementById("yacineResult").innerHTML = yacineResult == 0 ? "Nothing" : (yacineResult > 0 ? "Give to others " : "Give me ") + Math.abs(yacineResult).toFixed(2);
+      document.getElementById("aymenResult").innerHTML = aymenResult == 0 ? "Nothing" : (aymenResult > 0 ? "Give to others " : "Give me ") + Math.abs(aymenResult).toFixed(2);
+      document.getElementById("saidResult").innerHTML = saidResult == 0 ? "Nothing" : (saidResult > 0 ? "Give to others " : "Give me ") + Math.abs(saidResult).toFixed(2);
+      InsertData("Yacine",yacineValue)
+      InsertData("Aymen",aymenValue)
+      InsertData("Said",saidValue)
+  
+    }
+
+  function printPDF(){
+
+    window.print();
+}
+	  
+	  </script>
+</body>
+</html>
